@@ -20,17 +20,26 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # uncomment the line when a copyright and license is not present in all source files
-  #set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
+include_directories(
+  include
+  ${geometry_msgs_INCLUDE_DIRS}
+  ${rclcpp_INCLUDE_DIRS}
+)
+
+add_executable(tf_broadcast src/tf_broadcast.cpp)
+ament_target_dependencies(tf_broadcast
+  "rclcpp"
+  "std_msgs"
+  "geometry_msgs"
+  "tf2_ros"
+  )
+
+install(TARGETS
+  tf_broadcast
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 install(DIRECTORY
   launch
