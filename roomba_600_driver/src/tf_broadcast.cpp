@@ -40,7 +40,7 @@ void TfBroadcaster::publishOdom()
   quat.setRPY(0, 0, 0);
 
   tf_odom_.header.stamp = ros_clock_.now();
-  tf_odom_.transform.translation.x = 1;
+  tf_odom_.transform.translation.x += 0.01;
   tf_odom_.transform.translation.y = 0;
   tf_odom_.transform.rotation.x = quat.x();
   tf_odom_.transform.rotation.y = quat.y();
