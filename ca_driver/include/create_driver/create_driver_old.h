@@ -47,12 +47,6 @@ private:
   geometry_msgs::msg::TransformStamped tf_odom_;
   rclcpp::Clock ros_clock_;
   rclcpp::Time last_cmd_vel_time_;
-  
-  // add by Yudai Sadakuni
-  rclcpp::Time real_time_;
-  builtin_interfaces::msg::Time real_time3_;
-  builtin_interfaces::msg::Time last_time_;
-  
   std_msgs::msg::Empty empty_msg_;
   std_msgs::msg::Float32 float32_msg_;
   std_msgs::msg::UInt16 uint16_msg_;

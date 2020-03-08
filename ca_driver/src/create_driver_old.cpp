@@ -147,9 +147,6 @@ void CreateDriver::cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg
 {
   robot_->drive(msg->linear.x, msg->angular.z);
   last_cmd_vel_time_ = ros_clock_.now();
-
-  // add by Yudai Sadakuni
-  last_time_ = ros_clock_.now();
 }
 
 void CreateDriver::debrisLEDCallback(const std_msgs::msg::Bool::SharedPtr msg)
@@ -267,24 +264,10 @@ void CreateDriver::update()
   publishWheeldrop();
 
   // If last velocity command was sent longer than latch duration, stop robot
-
-  real_time_ = ros_clock_.now();
-  // real_time3_ = ros_clock_.now();
-  // std::cout<<"real time:"<<real_time3_.sec<<" "<<real_time3_.nanosec<<std::endl;
-  // std::cout<<"last time:"<<last_time_.sec<<" "<<last_time_.nanosec<<std::endl;
-
-  if(real_time_ - last_time_ >= rclcpp::Duration(latch_duration_))            // success
-  //if(real_time_   - last_cmd_vel_time_ >= rclcpp::Duration(latch_duration_))    // fail
-  //if(real_time_3_   - last_time_ >= rclcpp::Duration(latch_duration_))            // fail
-  //if(real_time_3_   - last_cmd_vel_time_ >= rclcpp::Duration(latch_duration_))    // fail
+  if (ros_clock_.now() - last_cmd_vel_time_ >= rclcpp::Duration(latch_duration_))
   {
     robot_->drive(0, 0);
   }
-
-  // if (ros_clock_.now() - last_cmd_vel_time_ >= rclcpp::Duration(latch_duration_))
-  // {
-  //   robot_->drive(0, 0);
-  // }
 }
 
 void CreateDriver::publishOdom()
@@ -337,7 +320,7 @@ void CreateDriver::publishOdom()
     tf_odom_.transform.rotation.y = quat.y();
     tf_odom_.transform.rotation.z = quat.z();
     tf_odom_.transform.rotation.w = quat.w();
-    // tf_broadcaster_->sendTransform(tf_odom_); comment out by Yudai Sadakuni
+    tf_broadcaster_->sendTransform(tf_odom_);
   }
 
   odom_pub_->publish(odom_msg_);
@@ -441,7 +424,6 @@ void CreateDriver::publishMode()
 {
   const create::CreateMode mode = robot_->getMode();
   mode_msg_.header.stamp = ros_clock_.now();
-  
   switch (mode)
   {
     case create::MODE_OFF:
