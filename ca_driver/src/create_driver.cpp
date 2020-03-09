@@ -11,13 +11,31 @@ CreateDriver::CreateDriver(const std::string & name)
   using namespace std::chrono_literals;
 
   std::string robot_model_name;
-  get_parameter_or<std::string>("dev", dev_, "/dev/ttyUSB0");
-  get_parameter_or<std::string>("robot_model", robot_model_name, "CREATE_2");
-  get_parameter_or<std::string>("base_frame", base_frame_, "base_footprint");
-  get_parameter_or<std::string>("odom_frame", odom_frame_, "odom");
-  get_parameter_or<double>("latch_cmd_duration", latch_duration_, 0.2);
-  get_parameter_or<double>("loop_hz", loop_hz_, 10.0);
-  get_parameter_or<bool>("publish_tf", publish_tf_, true);
+
+  // comment out by Yudai Sadakuni
+  // get_parameter_or<std::string>("dev", dev_, "/dev/ttyUSB0");
+  // get_parameter_or<std::string>("robot_model", robot_model_name, "CREATE_2");
+  // get_parameter_or<std::string>("base_frame", base_frame_, "base_footprint");
+  // get_parameter_or<std::string>("odom_frame", odom_frame_, "odom");
+  // get_parameter_or<double>("latch_cmd_duration", latch_duration_, 0.2);
+  // get_parameter_or<double>("loop_hz", loop_hz_, 10.0);
+  // get_parameter_or<bool>("publish_tf", publish_tf_, true);
+
+  declare_parameter("dev", "/dev/ttyUSB0");
+  declare_parameter("robot_model", "CREATE_2");
+  declare_parameter("base_frame", "base_footprint");
+  declare_parameter("odom_frame", "odom");
+  declare_parameter("latch_cmd_duration", 0.2);
+  declare_parameter("loop_hz", 10.0);
+  declare_parameter("publish_tf", true);
+
+  dev_ = this->get_parameter("dev").as_string();
+  robot_model_name = this->get_parameter("robot_model").as_string();
+  base_frame_ = this->get_parameter("base_frame").as_string();
+  odom_frame_ = this->get_parameter("odom_frame").as_string();
+  latch_duration_ = this->get_parameter("latch_cmd_duration").as_double();
+  loop_hz_ = this->get_parameter("loop_hz").as_double();
+  publish_tf_ = this->get_parameter("publish_tf").as_bool();
 
   if (robot_model_name == "ROOMBA_400")
   {
@@ -42,7 +60,11 @@ CreateDriver::CreateDriver(const std::string & name)
   RCLCPP_INFO(get_logger(), "[CREATE] \"%s\" selected",
               robot_model_name.c_str());
 
-  get_parameter_or<int>("baud", baud_, model_.getBaud());
+  // comment out by Yudai Sadakuni
+  // get_parameter_or<int>("baud", baud_, model_.getBaud());
+
+  declare_parameter("baud", int(model_.getBaud()));
+  baud_ = this->get_parameter("baud").as_int();
 
   robot_ = std::make_unique<create::Create>(model_);
 
