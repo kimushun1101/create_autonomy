@@ -10,8 +10,8 @@ config = LaunchConfiguration(
 def generate_launch_description():
     return LaunchDescription([
         Node(
-            package='ca_driver', 
+            package='ca_driver',
             node_executable='ca_driver',
-            output='screen'),
-            # parameters=[config]),
+            output='screen',
+            parameters=[config]),
     ])

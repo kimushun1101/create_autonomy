@@ -3,9 +3,12 @@ ca_driver:
     # The device path for the robot
     dev: "/dev/ttyUSB0"
 
+    # Robot model
+    robot_model: "CREATE_2"
+
     # Baud rate. Passing this paramenter overwrites the inferred value based on the robot_model
     # baud: 115200
-    
+
     # Base frame ID
     base_frame: "base_footprint"
 
