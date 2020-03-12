@@ -1,0 +1,10 @@
+teleop_twist_joy:
+  ros__parameters:
+    # angular scale
+    scale_angular: 0.6
+
+    # linear scale
+    scale_linear: 0.2
+
+    # connection mode
+    connection_mode: 1

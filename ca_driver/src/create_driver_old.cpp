@@ -11,31 +11,13 @@ CreateDriver::CreateDriver(const std::string & name)
   using namespace std::chrono_literals;
 
   std::string robot_model_name;
-
-  // comment out by Yudai Sadakuni
-  // get_parameter_or<std::string>("dev", dev_, "/dev/ttyUSB0");
-  // get_parameter_or<std::string>("robot_model", robot_model_name, "CREATE_2");
-  // get_parameter_or<std::string>("base_frame", base_frame_, "base_footprint");
-  // get_parameter_or<std::string>("odom_frame", odom_frame_, "odom");
-  // get_parameter_or<double>("latch_cmd_duration", latch_duration_, 0.2);
-  // get_parameter_or<double>("loop_hz", loop_hz_, 10.0);
-  // get_parameter_or<bool>("publish_tf", publish_tf_, true);
-
-  declare_parameter("dev", "/dev/ttyUSB0");
-  declare_parameter("robot_model", "CREATE_2");
-  declare_parameter("base_frame", "base_footprint");
-  declare_parameter("odom_frame", "odom");
-  declare_parameter("latch_cmd_duration", 0.2);
-  declare_parameter("loop_hz", 10.0);
-  declare_parameter("publish_tf", true);
-
-  dev_ = this->get_parameter("dev").as_string();
-  robot_model_name = this->get_parameter("robot_model").as_string();
-  base_frame_ = this->get_parameter("base_frame").as_string();
-  odom_frame_ = this->get_parameter("odom_frame").as_string();
-  latch_duration_ = this->get_parameter("latch_cmd_duration").as_double();
-  loop_hz_ = this->get_parameter("loop_hz").as_double();
-  publish_tf_ = this->get_parameter("publish_tf").as_bool();
+  get_parameter_or<std::string>("dev", dev_, "/dev/ttyUSB0");
+  get_parameter_or<std::string>("robot_model", robot_model_name, "CREATE_2");
+  get_parameter_or<std::string>("base_frame", base_frame_, "base_footprint");
+  get_parameter_or<std::string>("odom_frame", odom_frame_, "odom");
+  get_parameter_or<double>("latch_cmd_duration", latch_duration_, 0.2);
+  get_parameter_or<double>("loop_hz", loop_hz_, 10.0);
+  get_parameter_or<bool>("publish_tf", publish_tf_, true);
 
   if (robot_model_name == "ROOMBA_400")
   {
@@ -60,11 +42,7 @@ CreateDriver::CreateDriver(const std::string & name)
   RCLCPP_INFO(get_logger(), "[CREATE] \"%s\" selected",
               robot_model_name.c_str());
 
-  // comment out by Yudai Sadakuni
-  // get_parameter_or<int>("baud", baud_, model_.getBaud());
-
-  declare_parameter("baud", int(model_.getBaud()));
-  baud_ = this->get_parameter("baud").as_int();
+  get_parameter_or<int>("baud", baud_, model_.getBaud());
 
   robot_ = std::make_unique<create::Create>(model_);
 
@@ -105,9 +83,6 @@ CreateDriver::CreateDriver(const std::string & name)
     odom_msg_.pose.covariance[i] = COVARIANCE[i];
     odom_msg_.twist.covariance[i] = COVARIANCE[i];
   }
-
-  // add by Yudai Sadakuni
-  tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
 
   // Setup subscribers
   cmd_vel_sub_ = create_subscription<geometry_msgs::msg::Twist>(
@@ -172,9 +147,6 @@ void CreateDriver::cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg
 {
   robot_->drive(msg->linear.x, msg->angular.z);
   last_cmd_vel_time_ = ros_clock_.now();
-
-  // add by Yudai Sadakuni
-  last_time_ = ros_clock_.now();
 }
 
 void CreateDriver::debrisLEDCallback(const std_msgs::msg::Bool::SharedPtr msg)
@@ -292,24 +264,10 @@ void CreateDriver::update()
   publishWheeldrop();
 
   // If last velocity command was sent longer than latch duration, stop robot
-
-  real_time_ = ros_clock_.now();
-  // real_time3_ = ros_clock_.now();
-  // std::cout<<"real time:"<<real_time3_.sec<<" "<<real_time3_.nanosec<<std::endl;
-  // std::cout<<"last time:"<<last_time_.sec<<" "<<last_time_.nanosec<<std::endl;
-
-  if(real_time_ - last_time_ >= rclcpp::Duration(latch_duration_))            // success
-  //if(real_time_   - last_cmd_vel_time_ >= rclcpp::Duration(latch_duration_))    // fail
-  //if(real_time_3_   - last_time_ >= rclcpp::Duration(latch_duration_))            // fail
-  //if(real_time_3_   - last_cmd_vel_time_ >= rclcpp::Duration(latch_duration_))    // fail
+  if (ros_clock_.now() - last_cmd_vel_time_ >= rclcpp::Duration(latch_duration_))
   {
     robot_->drive(0, 0);
   }
-
-  // if (ros_clock_.now() - last_cmd_vel_time_ >= rclcpp::Duration(latch_duration_))
-  // {
-  //   robot_->drive(0, 0);
-  // }
 }
 
 void CreateDriver::publishOdom()
@@ -362,7 +320,7 @@ void CreateDriver::publishOdom()
     tf_odom_.transform.rotation.y = quat.y();
     tf_odom_.transform.rotation.z = quat.z();
     tf_odom_.transform.rotation.w = quat.w();
-    tf_broadcaster_->sendTransform(tf_odom_); //comment out by Yudai Sadakuni
+    tf_broadcaster_->sendTransform(tf_odom_);
   }
 
   odom_pub_->publish(odom_msg_);
@@ -466,7 +424,6 @@ void CreateDriver::publishMode()
 {
   const create::CreateMode mode = robot_->getMode();
   mode_msg_.header.stamp = ros_clock_.now();
-
   switch (mode)
   {
     case create::MODE_OFF:
