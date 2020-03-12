@@ -22,12 +22,27 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(rclcpp_components)
 
-include_directories(
-  include
-  ${geometry_msgs_INCLUDE_DIRS}
-  ${rclcpp_INCLUDE_DIRS}
+include_directories(include)
+
+add_library(teleop_twist_joy SHARED src/teleop_twist_joy.cpp)
+target_compile_definitions(teleop_twist_joy PRIVATE "COMPOSITION_BUILD_DLL")
+ament_target_dependencies(teleop_twist_joy
+  "rclcpp"
+  "rclcpp_components"
+  "sensor_msgs"
+  "geometry_msgs"
 )
+rclcpp_components_register_nodes(teleop_twist_joy "teleop_twist_joy::TeleopTwistJoy")
+
+add_executable(teleop_node
+  src/teleop_node.cpp)
+target_link_libraries(teleop_node
+  teleop_twist_joy)
+ament_target_dependencies(teleop_node
+  "rclcpp")
 
 add_executable(tf_broadcast src/tf_broadcast.cpp)
 ament_target_dependencies(tf_broadcast
@@ -39,9 +54,16 @@ ament_target_dependencies(tf_broadcast
   )
 
 install(TARGETS
-  tf_broadcast
-  DESTINATION lib/${PROJECT_NAME}
+  teleop_twist_joy
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
+
+install(TARGETS
+  tf_broadcast
+  teleop_node
+  DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY
   launch
