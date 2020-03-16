@@ -39,7 +39,7 @@ namespace teleop_twist_joy
 
     vel_pub_ = create_publisher<geometry_msgs::msg::Twist>("/cmd_vel");
 
-    timer_ = create_wall_timer(5ms, std::bind(&TeleopTwistJoy::update, this));
+    timer_ = create_wall_timer(10ms, std::bind(&TeleopTwistJoy::update, this));
   }
 
   void TeleopTwistJoy::joyCallback(const sensor_msgs::msg::Joy::SharedPtr msg)
