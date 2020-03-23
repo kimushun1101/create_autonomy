@@ -22,7 +22,7 @@ namespace create_driver
     declare_parameter("robot_model", "CREATE_2");
     declare_parameter("base_frame", "base_footprint");
     declare_parameter("odom_frame", "odom");
-    declare_parameter("latch_cmd_duration", 0.2);
+    declare_parameter("latch_cmd_duration", 0.5);
     declare_parameter("loop_hz", 10.0);
     declare_parameter("publish_tf", true);
     declare_parameter("baud", int(model_.getBaud()));
@@ -147,7 +147,7 @@ namespace create_driver
     wheeldrop_pub_ = create_publisher<std_msgs::msg::Empty>("wheeldrop");
     wheel_joint_pub_ = create_publisher<sensor_msgs::msg::JointState>("joint_states");
 
-    timer_ = create_wall_timer(50ms,
+    timer_ = create_wall_timer(100ms,
       std::bind(&CreateDriver::update, this));
 
     RCLCPP_INFO(get_logger(), "[CREATE] Ready.");
