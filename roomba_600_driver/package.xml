@@ -13,6 +13,13 @@
   <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>ca_msgs</depend>
+  <depend>diagnostic_msgs</depend>
+  <!-- <depend>diagnostic_updater</depend> -->
+  <depend>libcreate</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
 
   <build_depend>rclcpp_components</build_depend>
   <exec_depend>rclcpp_components</exec_depend>
