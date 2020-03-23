@@ -105,7 +105,6 @@ namespace create_driver
     // Setup subscribers
     cmd_vel_sub_ = create_subscription<geometry_msgs::msg::Twist>(
         "cmd_vel", std::bind(&CreateDriver::cmdVelCallback, this, std::placeholders::_1));
-    /*
     debris_led_sub_ = create_subscription<std_msgs::msg::Bool>(
         "debris_led", std::bind(&CreateDriver::debrisLEDCallback, this, std::placeholders::_1));
     spot_led_sub_ = create_subscription<std_msgs::msg::Bool>(
@@ -126,7 +125,6 @@ namespace create_driver
         "define_song", std::bind(&CreateDriver::defineSongCallback, this, std::placeholders::_1));
     play_song_sub_ = create_subscription<ca_msgs::msg::PlaySong>(
         "play_song", std::bind(&CreateDriver::playSongCallback, this, std::placeholders::_1));
-    */
 
     // Setup publishers
     odom_pub_ = create_publisher<nav_msgs::msg::Odometry>("odom", 30);
@@ -166,9 +164,115 @@ namespace create_driver
     last_timer_ = ros_clock_.now();
   }
 
+  void CreateDriver::debrisLEDCallback(const std_msgs::msg::Bool::SharedPtr msg)
+  {
+    robot_->enableDebrisLED(msg->data);
+  }
+
+  void CreateDriver::spotLEDCallback(const std_msgs::msg::Bool::SharedPtr msg)
+  {
+    robot_->enableSpotLED(msg->data);
+  }
+
+  void CreateDriver::dockLEDCallback(const std_msgs::msg::Bool::SharedPtr msg)
+  {
+    robot_->enableDockLED(msg->data);
+  }
+
+  void CreateDriver::checkLEDCallback(const std_msgs::msg::Bool::SharedPtr msg)
+  {
+    robot_->enableCheckRobotLED(msg->data);
+  }
+
+  void CreateDriver::powerLEDCallback(const std_msgs::msg::UInt8MultiArray::SharedPtr msg)
+  {
+    if (msg->data.empty())
+    {
+      RCLCPP_ERROR(get_logger(), "[CREATE] No values provided to set power LED");
+    }
+    else
+    {
+      if (msg->data.size() < 2)
+      {
+        robot_->setPowerLED(msg->data[0]);
+      }
+      else
+      {
+        robot_->setPowerLED(msg->data[0], msg->data[1]);
+      }
+    }
+  }
+
+  void CreateDriver::setASCIICallback(const std_msgs::msg::UInt8MultiArray::SharedPtr msg)
+  {
+    bool result = false;
+    if (msg->data.empty())
+    {
+      RCLCPP_ERROR(get_logger(), "[CREATE] No ASCII digits provided");
+    }
+    else if (msg->data.size() < 2)
+    {
+      result = robot_->setDigitsASCII(msg->data[0], ' ', ' ', ' ');
+    }
+    else if (msg->data.size() < 3)
+    {
+      result = robot_->setDigitsASCII(msg->data[0], msg->data[1], ' ', ' ');
+    }
+    else if (msg->data.size() < 4)
+    {
+      result = robot_->setDigitsASCII(msg->data[0], msg->data[1], msg->data[2], ' ');
+    }
+    else
+    {
+      result = robot_->setDigitsASCII(msg->data[0], msg->data[1], msg->data[2], msg->data[3]);
+    }
+
+    if (!result)
+    {
+      RCLCPP_ERROR(get_logger(), "[CREATE] ASCII character out of range [32, 126]");
+    }
+  }
+
+  void CreateDriver::dockCallback(const std_msgs::msg::Empty::SharedPtr msg)
+  {
+    robot_->setMode(create::MODE_PASSIVE);
+
+    if (model_.getVersion() <= create::V_2)
+      usleep(1000000);  // Create 1 requires a delay (1 sec)
+
+    // Call docking behaviour
+    robot_->dock();
+  }
+
+  void CreateDriver::undockCallback(const std_msgs::msg::Empty::SharedPtr msg)
+  {
+    // Switch robot back to FULL mode
+    robot_->setMode(create::MODE_FULL);
+  }
+
+  void CreateDriver::defineSongCallback(const ca_msgs::msg::DefineSong::SharedPtr msg)
+  {
+    if (!robot_->defineSong(msg->song, msg->length, &(msg->notes.front()), &(msg->durations.front())))
+    {
+      RCLCPP_ERROR(get_logger(), "[CREATE] Failed to define song %d of length %d",
+                   msg->song, msg->length);
+    }
+  }
+
+  void CreateDriver::playSongCallback(const ca_msgs::msg::PlaySong::SharedPtr msg)
+  {
+    if (!robot_->playSong(msg->song))
+    {
+      RCLCPP_ERROR(get_logger(), "[CREATE] Failed to play song %d", msg->song);
+    }
+  }
+
   void CreateDriver::update()
   {
     std::cout<<"update"<<std::endl;
+
+    if(ros_clock_.now() - last_timer_ >= rclcpp::Duration(latch_duration_))
+      robot_->drive(0, 0);
   }
 
   void CreateDriver::test()
