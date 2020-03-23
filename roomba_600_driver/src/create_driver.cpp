@@ -147,7 +147,7 @@ namespace create_driver
     wheeldrop_pub_ = create_publisher<std_msgs::msg::Empty>("wheeldrop");
     wheel_joint_pub_ = create_publisher<sensor_msgs::msg::JointState>("joint_states");
 
-    timer_ = create_wall_timer(100ms,
+    timer_ = create_wall_timer(50ms,
       std::bind(&CreateDriver::update, this));
 
     RCLCPP_INFO(get_logger(), "[CREATE] Ready.");
