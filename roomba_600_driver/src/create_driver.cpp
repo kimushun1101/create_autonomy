@@ -271,8 +271,10 @@ namespace create_driver
   {
     std::cout<<"update"<<std::endl;
 
-    if(ros_clock_.now() - last_timer_ >= rclcpp::Duration(latch_duration_))
+    if(ros_clock_.now() - last_timer_ >= rclcpp::Duration(latch_duration_)){
+      std::cout<<"cmd slow or stop"<<std::endl;
       robot_->drive(0, 0);
+    }
   }
 
   void CreateDriver::test()
