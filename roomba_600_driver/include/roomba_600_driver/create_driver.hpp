@@ -56,11 +56,8 @@ namespace create_driver
     int counter_;
     rclcpp::Time last_timer_;
     rclcpp::Time real_timer_;
-
-    // add by Yudai Sadakuni
-    rclcpp::Time real_time_;
-    builtin_interfaces::msg::Time real_time3_;
     builtin_interfaces::msg::Time last_time_;
+    builtin_interfaces::msg::Time real_time_;
 
     std_msgs::msg::Empty empty_msg_;
     std_msgs::msg::Float32 float32_msg_;

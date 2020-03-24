@@ -162,6 +162,7 @@ namespace create_driver
   {
     robot_->drive(msg->linear.x, msg->angular.z);
     last_timer_ = ros_clock_.now();
+    last_time_ = ros_clock_.now();
   }
 
   void CreateDriver::debrisLEDCallback(const std_msgs::msg::Bool::SharedPtr msg)
@@ -271,7 +272,8 @@ namespace create_driver
   {
     std::cout<<"update"<<std::endl;
 
-    if(ros_clock_.now() - last_timer_ >= rclcpp::Duration(1)){
+    if(ros_clock_.now() - last_time_ >= rclcpp::Duration(0.5)){
+    // if(ros_clock_.now() - last_timer_ >= rclcpp::Duration(0.5)){
       std::cout<<"set speed 0.0"<<std::endl;
       robot_->drive(0, 0);
     }
