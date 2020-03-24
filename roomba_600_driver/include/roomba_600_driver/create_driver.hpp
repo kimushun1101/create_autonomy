@@ -28,8 +28,8 @@
 #include "ca_msgs/msg/define_song.hpp"
 #include "ca_msgs/msg/play_song.hpp"
 
-static const double MAX_DBL = std::numeric_limits<double>::max();
-static const double COVARIANCE[36] = {1e-5, 1e-5, 0.0,     0.0,     0.0,     1e-5,  // NOLINT(whitespace/braces)
+static const float MAX_DBL = std::numeric_limits<float>::max();
+static const float COVARIANCE[36] = {1e-5, 1e-5, 0.0,     0.0,     0.0,     1e-5,  // NOLINT(whitespace/braces)
                                       1e-5, 1e-5, 0.0,     0.0,     0.0,     1e-5,
                                       0.0,  0.0,  MAX_DBL, 0.0,     0.0,     0.0,
                                       0.0,  0.0,  0.0,     MAX_DBL, 0.0,     0.0,
@@ -53,11 +53,8 @@ namespace create_driver
     rclcpp::Clock ros_clock_;
     rclcpp::Time last_cmd_vel_time_;
 
-    int counter_;
     rclcpp::Time last_timer_;
     rclcpp::Time real_timer_;
-    builtin_interfaces::msg::Time last_time_;
-    builtin_interfaces::msg::Time real_time_;
 
     std_msgs::msg::Empty empty_msg_;
     std_msgs::msg::Float32 float32_msg_;
@@ -86,7 +83,6 @@ namespace create_driver
     void defineSongCallback(const ca_msgs::msg::DefineSong::SharedPtr msg);
     void playSongCallback(const ca_msgs::msg::PlaySong::SharedPtr msg);
 
-    void test();
     void update();
     void publishOdom();
     void publishJointState();
@@ -132,7 +128,6 @@ namespace create_driver
 
   public:
     explicit CreateDriver(const rclcpp::NodeOptions & options);
-    // explicit CreateDriver(const std::string & name);
     ~CreateDriver();
   };
 }
