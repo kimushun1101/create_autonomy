@@ -4,6 +4,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/joy.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <std_msgs/msg/empty.hpp>
 
 namespace teleop_twist_joy
 {
@@ -20,6 +21,7 @@ namespace teleop_twist_joy
 
       rclcpp::TimerBase::SharedPtr timer_;
       geometry_msgs::msg::Twist vel_;
+      std_msgs::msg::Empty empty_;
 
       enum JoyAxesJS1 {
         LEFT_STICK_HORIZONTAL_1 = 0,
@@ -48,6 +50,8 @@ namespace teleop_twist_joy
     protected:
       rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_sub_;
       rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr vel_pub_;
+      rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr dock_pub_;
+      rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr undock_pub_;
   };
 } // namespace teleop_twist_joy
 

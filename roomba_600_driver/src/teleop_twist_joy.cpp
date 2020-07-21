@@ -14,8 +14,8 @@ namespace teleop_twist_joy
 
     std::cout<<"constructer"<<std::endl;
 
-    declare_parameter("scale_angular", 0.5);
-    declare_parameter("scale_linear", 0.1);
+    declare_parameter("scale_linear", 0.2);
+    declare_parameter("scale_angular", 0.6);
     declare_parameter("connection_mode", 1);
 
     a_scale_ = this->get_parameter("scale_angular").as_double();
@@ -38,6 +38,11 @@ namespace teleop_twist_joy
       "/joy", std::bind(&TeleopTwistJoy::joyCallback, this, std::placeholders::_1));
 
     vel_pub_ = create_publisher<geometry_msgs::msg::Twist>("/cmd_vel");
+
+    // Add by Shunsuke KIMURA
+    dock_pub_ = create_publisher<std_msgs::msg::Empty>("/dock");
+    undock_pub_ = create_publisher<std_msgs::msg::Empty>("/undock");
+
 
     timer_ = create_wall_timer(5ms, std::bind(&TeleopTwistJoy::update, this));
   }
@@ -63,6 +68,12 @@ namespace teleop_twist_joy
     vel_.angular.z = a_scale_ * joy_L_hor;
 
     // vel_pub_->publish(vel_);
+
+    // Add by Shunsuke KIMURA
+    if (msg->buttons[1] == 1)
+      dock_pub_->publish(empty_);
+    else if (msg->buttons[0] == 1)
+      undock_pub_->publish(empty_);
   }
 
   void TeleopTwistJoy::update()
